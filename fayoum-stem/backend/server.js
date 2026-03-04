@@ -10,6 +10,7 @@ const authRoutes = require('./routes/auth');
 const scheduleRoutes = require('./routes/schedules');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 5000;
 
 // Security: Helmet headers
