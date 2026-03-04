@@ -3,7 +3,8 @@ require('dotenv').config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  ssl: { rejectUnauthorized: false },
+  family: 4,
 });
 
 pool.on('error', (err) => {
@@ -51,7 +52,6 @@ const initializeDatabase = async () => {
       );
     `);
 
-    // Seed schedule rows for all classes if not exists
     const classes = ['G10 A', 'G10 B', 'G10 C', 'G11 A', 'G11 B', 'G11 C', 'G12 A', 'G12 B'];
     for (const cls of classes) {
       await client.query(`
