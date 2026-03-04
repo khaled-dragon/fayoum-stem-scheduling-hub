@@ -3,35 +3,41 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../lib/auth';
+import { useAuth } from '../../../lib/auth';
 import toast from 'react-hot-toast';
-import ParticleBackground from '../../components/ParticleBackground';
-import LoadingSpinner from '../../components/LoadingSpinner';
-
-const CLASSES = ['G10 A', 'G10 B', 'G10 C', 'G11 A', 'G11 B', 'G11 C', 'G12 A', 'G12 B'];
+import ParticleBackground from '../../../components/ParticleBackground';
+import LoadingSpinner from '../../../components/LoadingSpinner';
 
 export default function SignUpPage() {
   const router = useRouter();
   const { signUp } = useAuth();
-  const [form, setForm] = useState({ name: '', email: '', phone: '', class_name: '', password: '' });
+  const [form, setForm] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    confirmPassword: '',
+    role: 'student' 
+  });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.class_name || !form.password) {
+    if (!form.name || !form.email || !form.password) {
       toast.error('Please fill in all required fields');
       return;
     }
-    if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (form.password !== form.confirmPassword) {
+      toast.error('Passwords do not match');
       return;
     }
+    
     setLoading(true);
     try {
-      await signUp(form);
-      toast.success('Account created! Welcome to STEM Fayoum.');
+      await signUp(form.name, form.email, form.password, form.role);
+      toast.success('Account created successfully!');
       router.push('/dashboard');
     } catch (err) {
       const msg = err.response?.data?.error || 'Sign up failed. Please try again.';
@@ -48,7 +54,7 @@ export default function SignUpPage() {
     color: '#e2e8f0',
     fontFamily: 'DM Sans, sans-serif',
     fontSize: '14px',
-    padding: '11px 14px',
+    padding: '12px 16px',
     width: '100%',
     transition: 'all 0.2s',
   };
@@ -67,11 +73,11 @@ export default function SignUpPage() {
         className="relative z-10 w-full max-w-md mx-4"
       >
         <div
-          className="rounded-2xl p-8"
+          className="glass-card rounded-2xl p-8"
           style={{
-            background: 'rgba(5, 13, 26, 0.88)',
+            background: 'rgba(5, 13, 26, 0.85)',
             border: '1px solid rgba(59, 130, 246, 0.2)',
-            boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(59, 130, 246, 0.06)',
+            boxShadow: '0 24px 80px rgba(0,0,0,0.6), 0 0 40px rgba(59, 130, 246, 0.08)',
             backdropFilter: 'blur(24px)',
           }}
         >
@@ -91,56 +97,69 @@ export default function SignUpPage() {
             Create Account
           </h1>
           <p
-            className="text-center mb-7"
+            className="text-center mb-6"
             style={{ color: '#475569', fontFamily: 'DM Sans, sans-serif', fontSize: '13px' }}
           >
-            Join STEM Fayoum Scheduling Hub
+            Join the STEM Fayoum community
           </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                FULL NAME <span style={{ color: '#ef4444' }}>*</span>
+                FULL NAME
               </label>
-              <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="Ahmed Mohamed" style={inputStyle} />
-            </div>
-
-            <div>
-              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                EMAIL ADDRESS <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="ahmed@example.com" style={inputStyle} />
-            </div>
-
-            <div>
-              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                PHONE NUMBER
-              </label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="+20 10 0000 0000" style={inputStyle} />
-            </div>
-
-            <div>
-              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                CLASS <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <select
-                name="class_name"
-                value={form.class_name}
+              <input
+                type="text"
+                name="name"
+                value={form.name}
                 onChange={handleChange}
-                style={{ ...inputStyle, cursor: 'pointer', appearance: 'none' }}
-              >
-                <option value="" disabled style={{ background: '#050d1a' }}>Select your class</option>
-                {CLASSES.map(c => (
-                  <option key={c} value={c} style={{ background: '#050d1a', color: '#e2e8f0' }}>{c}</option>
-                ))}
-              </select>
+                placeholder="John Doe"
+                style={inputStyle}
+              />
             </div>
 
             <div>
               <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                PASSWORD <span style={{ color: '#ef4444' }}>*</span>
+                EMAIL ADDRESS
               </label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} placeholder="Min. 6 characters" style={inputStyle} />
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="you@example.com"
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
+                PASSWORD
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
+                CONFIRM PASSWORD
+              </label>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                style={inputStyle}
+              />
             </div>
 
             <motion.button
@@ -162,22 +181,18 @@ export default function SignUpPage() {
           </form>
 
           <p
-            className="text-center mt-5 text-sm"
+            className="text-center mt-6 text-sm"
             style={{ color: '#475569', fontFamily: 'DM Sans, sans-serif' }}
           >
             Already have an account?{' '}
-            <button onClick={() => router.push('/auth/signin')} style={{ color: '#60a5fa' }} className="hover:underline">
-              Sign in
+            <button
+              onClick={() => router.push('/auth/signin')}
+              style={{ color: '#60a5fa' }}
+              className="hover:underline"
+            >
+              Sign In
             </button>
           </p>
-
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-1 mx-auto mt-4 text-xs"
-            style={{ color: '#334155', fontFamily: 'DM Sans, sans-serif' }}
-          >
-            ← Back to home
-          </button>
         </div>
       </motion.div>
     </main>
