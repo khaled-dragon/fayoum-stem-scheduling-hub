@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '../../lib/auth';
+import { useAuth } from '../../../lib/auth';
 import toast from 'react-hot-toast';
-import ParticleBackground from '../../components/ParticleBackground';
-import LoadingSpinner from '../../components/LoadingSpinner';
+import ParticleBackground from '../../../components/ParticleBackground';
+import LoadingSpinner from '../../../components/LoadingSpinner';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -61,7 +61,6 @@ export default function SignInPage() {
         transition={{ duration: 0.6, ease: 'easeOut' }}
         className="relative z-10 w-full max-w-md mx-4"
       >
-        {/* Card */}
         <div
           className="glass-card rounded-2xl p-8"
           style={{
@@ -71,7 +70,6 @@ export default function SignInPage() {
             backdropFilter: 'blur(24px)',
           }}
         >
-          {/* Logo */}
           <div className="flex justify-center mb-8">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center"
