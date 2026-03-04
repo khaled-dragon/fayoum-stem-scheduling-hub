@@ -79,6 +79,16 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     await initializeDatabase();
+    const bcrypt = require('bcryptjs');
+    const { pool } = require('./models/db');
+    const adminEmail = 'kwael6774@gmail.com';
+    const adminPassword = '612009KH-e';
+    const existing = await pool.query('SELECT id FROM admins WHERE email = $1', [adminEmail]);
+    if (existing.rows.length === 0) {
+      const hash = await bcrypt.hash(adminPassword, 12);
+      await pool.query('INSERT INTO admins (email, password_hash) VALUES ($1, $2)', [adminEmail, hash]);
+      console.log('✅ Admin seeded');
+    }
     app.listen(PORT, () => {
       console.log(`🚀 Fayoum STEM Backend running on port ${PORT}`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
