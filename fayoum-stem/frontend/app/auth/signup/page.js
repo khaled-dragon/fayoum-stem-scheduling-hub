@@ -8,15 +8,17 @@ import toast from 'react-hot-toast';
 import ParticleBackground from '../../../components/ParticleBackground';
 import LoadingSpinner from '../../../components/LoadingSpinner';
 
+const CLASSES = ['G10 A', 'G10 B', 'G10 C', 'G11 A', 'G11 B', 'G11 C', 'G12 A', 'G12 B'];
+
 export default function SignUpPage() {
   const router = useRouter();
   const { signUp } = useAuth();
-  const [form, setForm] = useState({ 
-    name: '', 
-    email: '', 
-    password: '', 
-    confirmPassword: '',
-    role: 'student' 
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    class_name: '',
+    password: '',
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -25,18 +27,17 @@ export default function SignUpPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
+    if (!form.name || !form.email || !form.password || !form.class_name) {
       toast.error('Please fill in all required fields');
       return;
     }
-    if (form.password !== form.confirmPassword) {
-      toast.error('Passwords do not match');
+    if (form.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
       return;
     }
-    
     setLoading(true);
     try {
-      await signUp(form.name, form.email, form.password, form.role);
+      await signUp(form);
       toast.success('Account created successfully!');
       router.push('/dashboard');
     } catch (err) {
@@ -106,21 +107,21 @@ export default function SignUpPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                FULL NAME
+                FULL NAME *
               </label>
               <input
                 type="text"
                 name="name"
                 value={form.name}
                 onChange={handleChange}
-                placeholder="John Doe"
+                placeholder="Ahmed Mohamed"
                 style={inputStyle}
               />
             </div>
 
             <div>
               <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                EMAIL ADDRESS
+                EMAIL ADDRESS *
               </label>
               <input
                 type="email"
@@ -134,7 +135,38 @@ export default function SignUpPage() {
 
             <div>
               <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                PASSWORD
+                PHONE NUMBER
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                value={form.phone}
+                onChange={handleChange}
+                placeholder="+20 10 0000 0000"
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
+                CLASS *
+              </label>
+              <select
+                name="class_name"
+                value={form.class_name}
+                onChange={handleChange}
+                style={{ ...inputStyle, cursor: 'pointer' }}
+              >
+                <option value="" disabled style={{ background: '#050d1a' }}>Select your class</option>
+                {CLASSES.map(c => (
+                  <option key={c} value={c} style={{ background: '#050d1a', color: '#e2e8f0' }}>{c}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
+                PASSWORD *
               </label>
               <div className="relative">
                 <input
@@ -142,24 +174,18 @@ export default function SignUpPage() {
                   name="password"
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="••••••••"
-                  style={inputStyle}
+                  placeholder="Min. 6 characters"
+                  style={{ ...inputStyle, paddingRight: '48px' }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
+                  style={{ color: '#475569' }}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
               </div>
-            </div>
-
-            <div>
-              <label className="block mb-1.5 text-xs" style={{ color: '#64748b', fontFamily: 'DM Sans, sans-serif', letterSpacing: '0.05em' }}>
-                CONFIRM PASSWORD
-              </label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={form.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                style={inputStyle}
-              />
             </div>
 
             <motion.button
@@ -193,6 +219,14 @@ export default function SignUpPage() {
               Sign In
             </button>
           </p>
+
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-1 mx-auto mt-4 text-xs"
+            style={{ color: '#334155', fontFamily: 'DM Sans, sans-serif' }}
+          >
+            ← Back to home
+          </button>
         </div>
       </motion.div>
     </main>
